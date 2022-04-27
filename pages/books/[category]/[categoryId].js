@@ -60,6 +60,25 @@ export default () => {
       <div className='row no-gutters'>
         <ListBooks />
       </div>
+
+      <nav aria-label="Page navigation example mt-3">
+        <div className='text-center'>Current Page</div>
+        <ul className="pagination justify-content-center">
+          <li className="page-item">
+            <a className="page-link" href="#" aria-label="Previous">
+              &#8592;
+            </a>
+          </li>
+          <li className="page-item">
+            <a className="page-link" disabled>2</a>
+          </li>
+          <li className="page-item">
+            <a className="page-link" href="#" aria-label="Next">
+              &#8594;
+            </a>
+          </li>
+        </ul>
+      </nav>
     </>
   )
 }
