@@ -1,6 +1,6 @@
 import styles from './_chip.module.scss'
 
-export default function Chip({ text, icon }) {
+export default ({ text, icon }) => {
   return (
     <div className={ styles.chip }>
       <div className='d-flex align-items-center gap-1'>

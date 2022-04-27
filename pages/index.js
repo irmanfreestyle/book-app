@@ -1,10 +1,38 @@
 import Link from 'next/link'
-
 import Chip from '/components/Chip'
+import axios from 'axios'
+import { useEffect, useState } from 'react'
 
 export default function Home() {
+  // State
+  const [categories, setCategories] = useState([])
+
+  // Methods
+  async function loadCategories() {
+    try {
+      const { data } = await axios.get('/api/categories')
+      setCategories(data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  function ListCategories() {
+    return categories.map(category => (
+      <Link key={category.id} href={`books/${category.name}/${category.id}`}>
+        <a>
+          <Chip icon="adjust" text={category.name} />
+        </a>
+      </Link>
+    ))
+  }
+
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
   return (
-    <div className="app-wrapper py-5 px-3">
+    <>
       <div className='text-center bg-info p-4 rounded-3'>
         <img
           src="/assets/images/book_banner.svg"
@@ -12,25 +40,10 @@ export default function Home() {
           style={{width: '300px', maxWidth: '70%'}}
         />
       </div>
-
-      <h4 className='py-3'>Explore Categories</h4>
-
+      <h6 className='py-3'>Explore Categories</h6>
       <div className='d-flex flex-wrap justify-content-center gap-2'>
-        <Link href="category/2">
-          <a>
-            <Chip icon="adjust" text="Motivation" />
-          </a>
-        </Link>
-        {/* <Link href="category/2">
-          <Chip text="Self Learning" />
-        </Link>
-        <Link href="category/2">
-          <Chip text="Sport" />
-        </Link>
-        <Link href="category/2">
-          <Chip text="Personal Development" />
-        </Link> */}
+        <ListCategories />
       </div>
-    </div>
+    </>
   )
 }
