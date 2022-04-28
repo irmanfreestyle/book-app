@@ -1,13 +1,10 @@
-.chip {
-  display: inline-block;
+.category-card {
   border: 1px solid rgba(0, 0, 0, 0.2);
   padding: 7px 15px;
   border-radius: 4px;
-  white-space: nowrap;
   font-size: 0.8rem;
   color: black;
   font-weight: 500;
-  text-decoration: none;
 
   &:hover {
     cursor: pointer;

@@ -1,0 +1,22 @@
+.nav-wrapper {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+
+  .nav-content {
+    background-color: #fff;
+    display: flex;
+    border-radius: 10px;
+    max-width: 100%;
+    width: 250px;
+    justify-content: space-between;
+
+    a {
+      display: flex;
+      text-decoration: none;
+    }
+  }
+}

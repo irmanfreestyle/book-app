@@ -1,40 +1,96 @@
 import { useRouter } from 'next/router'
 
+import ListBooks from '/components/ListBook'
+import Spinner from '/components/Spinner'
+
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 
-import BookCard from '../../../components/BookCard'
-
 export default () => {
-
+  const [currentPage, setCurrentPage] = useState(0)
+  const [currentSize, setCurrentSize] = useState(5)
+  const [search, setSearch] = useState('')
   const [books, setBooks] = useState([])
+  const [filteredBooks, setFilteredBooks] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const router = useRouter()
   const { query, isReady } = router
   const { categoryId, category } = query
 
-  async function loadBooks(page = 0, size = 10) {
+  async function loadBooks(page, size, callback= () => {}) {
     try {
-      const { data } = await axios.get(`/api/books?categoryId=${categoryId}&page=${page}&size=${size}`)
-      setBooks(data)
+      setIsLoading(true)
+      const { data, status } = await axios.get(`/api/books?categoryId=${categoryId}&page=${page}&size=${size}`)
+      if (status) {
+        callback()
+        setBooks(data)
+        setFilteredBooks(data)
+      }
     } catch (error) {
-      console.log(error)
+      console.log('Record not found')
+    }
+    setIsLoading(false)
+  }
+
+  function handleSearch(e) {
+    setSearch(e.target.value)
+  }
+
+  function changePage(act) {
+    switch(act) {
+      case 'next':
+        loadBooks(currentPage + 1, currentSize, () => {
+          setCurrentPage(currentPage + 1)
+        })
+        break
+      case 'prev':
+        if (currentPage > 0) {
+          loadBooks(currentPage - 1, currentSize, () => {
+            setCurrentPage(currentPage - 1)
+          })
+        }
+        break
     }
   }
 
-  function ListBooks() {
-    return books.map(book =>(
-      <div key={book.id} className='col-6 col-md-4 pb-2'>
-         <BookCard data={book} />
-      </div>
-    ))
+  function changeSize(act) {
+    switch(act) {
+      case 'next':
+        loadBooks(currentSize, currentSize + 1, () => {
+          setCurrentSize(currentSize + 1)
+        })
+        break
+      case 'prev':
+        if (currentSize > 1) {
+          loadBooks(currentPage, currentSize - 1, () => {
+            setCurrentSize(currentSize - 1)
+          })
+        }
+        break
+    }
   }
 
   useEffect(() => {
     if (isReady) {
-      loadBooks()
+      loadBooks(currentPage, currentSize)
     }
   }, [isReady])
+
+  useEffect(() => {
+    const keyword = search.trim().toLowerCase()
+
+    if (!keyword.length) {
+      setFilteredBooks(books)
+    } else {
+      setFilteredBooks(books.filter(book => {
+        const byTitle = book.title.toLowerCase().search(keyword) > -1
+        const byAuthors = book.authors.filter(author => author.toLowerCase().search(keyword) > -1).length
+
+        return byTitle || byAuthors
+      }))
+    }
+  }, [search])
 
   return (
     <>
@@ -45,58 +101,69 @@ export default () => {
         </div>
 
         <div className='row align-items-end mt-2'>
-          <div className='col-6 col-sm-8'>
-            <input type="text" className="form-control" placeholder={`Search book on ${category}`} />
+          <div className='col-12'>
+            <input value={search} onChange={handleSearch} type="text" className="form-control" placeholder={`Search book by title or author on ${category}`} />
           </div>
         </div>
       </div>
 
-      <div className='row mt-4'>
-        <ListBooks />
-      </div>
+      { (isLoading && <div className="text-center"><Spinner /></div>) }
+      {
+        !isLoading &&
+        <div>
+          <div className='row mt-4'>
+            { (!isLoading && !filteredBooks.length)
+              &&
+            <div className='text-center py-5'>
+              No record found!
+            </div> }
+            <ListBooks books={filteredBooks} />
+          </div>
 
-      <div className='d-flex justify-content-center gap-3'>
-        <div>
-          <div className='text-center'>
-            <small className='text-secondary'>Current Page</small>
+          <div className='d-flex justify-content-center gap-3'>
+            <div>
+              <div className='text-center'>
+                <small className='text-secondary'>Current Page</small>
+              </div>
+              <ul className="pagination mb-0">
+                <li className="page-item" onClick={() => changePage('prev')}>
+                  <a className="page-link text-secondary hoverable">
+                    &#8249;
+                  </a>
+                </li>
+                <li className="page-item">
+                  <a className="page-link text-dark">{ currentPage + 1 }</a>
+                </li>
+                <li className="page-item" onClick={() => changePage('next')}>
+                  <a className="page-link text-secondary hoverable">
+                    &#8250;
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <div className='text-center'>
+                <small className='text-secondary'>Size</small>
+              </div>
+              <ul className="pagination mb-0">
+                <li className="page-item" onClick={() => changeSize('prev')}>
+                  <a className="page-link text-secondary hoverable">
+                    &#45;
+                  </a>
+                </li>
+                <li className="page-item">
+                  <a className="page-link text-dark">{ currentSize }</a>
+                </li>
+                <li className="page-item" onClick={() => changeSize('next')}>
+                  <a className="page-link text-secondary hoverable">
+                    &#43;
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
-          <ul className="pagination mb-0">
-            <li className="page-item">
-              <a className="page-link text-secondary hoverable">
-                &#8592;
-              </a>
-            </li>
-            <li className="page-item">
-              <a className="page-link text-dark" disabled>2</a>
-            </li>
-            <li className="page-item">
-              <a className="page-link text-secondary hoverable">
-                &#8594;
-              </a>
-            </li>
-          </ul>
         </div>
-        <div>
-          <div className='text-center'>
-            <small className='text-secondary'>Size</small>
-          </div>
-          <ul className="pagination mb-0">
-            <li className="page-item">
-              <a className="page-link text-secondary hoverable">
-                &#45;
-              </a>
-            </li>
-            <li className="page-item">
-              <a className="page-link text-dark" disabled>2</a>
-            </li>
-            <li className="page-item">
-              <a className="page-link text-secondary hoverable">
-                &#43;
-              </a>
-            </li>
-          </ul>
-        </div>
-      </div>
+      }
     </>
   )
 }
