@@ -12,6 +12,9 @@ body {
   width: 768px;
   max-width: 100%;
   margin: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .hoverable {

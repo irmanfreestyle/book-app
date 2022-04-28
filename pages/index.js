@@ -1,7 +1,8 @@
-import Link from 'next/link'
-import Chip from '/components/Chip'
 import axios from 'axios'
+import Link from 'next/link'
 import { useEffect, useState } from 'react'
+
+import Chip from '/components/Chip'
 
 export default function Home() {
   // State
@@ -33,7 +34,7 @@ export default function Home() {
 
   return (
     <>
-      <div className='text-center bg-info p-4 rounded-3'>
+      <div className='text-center bg-primary p-4 rounded-3'>
         <img
           src="/assets/images/book_banner.svg"
           alt="Book Banner"
